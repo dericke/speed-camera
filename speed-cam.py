@@ -47,6 +47,7 @@ from __future__ import print_function
 progVer = "10.10"  # current version of this python script
 
 import os
+
 # Get information about this script including name, launch path, etc.
 # This allows script to be renamed or relocated to another directory
 mypath = os.path.abspath(__file__)  # Find the full path of this python script
@@ -60,15 +61,16 @@ print("%s %s  written by Claude Pageau" % (progName, progVer))
 print("Motion Track Largest Moving Object and Calculate Speed per Calibration.")
 print(horz_line)
 print("Loading  Wait ...")
-import time
 import datetime
-import sys
 import glob
-import shutil
 import logging
+import shutil
 import sqlite3
-from threading import Thread
 import subprocess
+import sys
+import time
+from threading import Thread
+
 import numpy as np
 
 """
@@ -306,8 +308,8 @@ if pluginEnable:     # Check and verify plugin and load variable overlay
 # import the necessary packages
 # -----------------------------
 try:  #Add this check in case running on non RPI platform using web cam
-    from picamera.array import PiRGBArray
     from picamera import PiCamera
+    from picamera.array import PiRGBArray
 except ImportError:
     WEBCAM = True
 
