@@ -215,14 +215,13 @@ def make_html():
                      direction))
         html_table.append(table_row)
     connection.close()
-    f = open(REPORTS_PATH, "w")
-    f.write(HTML_HEADER_1)
-    f.write(HTML_HEADER_2)
-    f.write(HTML_HEADER_3)
-    for item in html_table:
-        f.write(item)
-    f.write(HTML_FOOTER)
-    f.close()
+    with open(REPORTS_PATH, "w") as f:
+        f.write(HTML_HEADER_1)
+        f.write(HTML_HEADER_2)
+        f.write(HTML_HEADER_3)
+        for item in html_table:
+            f.write(item)
+        f.write(HTML_FOOTER)
     del html_table
     logging.info("Saved html File to %s", REPORTS_PATH)
 

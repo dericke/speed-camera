@@ -66,9 +66,8 @@ if not os.path.exists(configFilePath):  # check if config.py file exist if not w
         print("   and Try Again")
         print("Exiting %s" % ( progName ))
         quit()
-    f = open('search_config.py','wb')
-    f.write(wgetfile.read())
-    f.close()
+    with open('search_config.py','wb') as f:
+        f.write(wgetfile.read())
 from search_config import *  # Read Configuration variables from search_config.py file
 from config import *
 
@@ -220,7 +219,7 @@ def search_for_match(search_image, search_rect):
 if not os.path.isdir(search_dest_path):
     print("Creating Search Folder %s" % ( search_dest_path))
     os.makedirs(search_dest_path)
-    
+
 search_list = glob.glob(search_dest_path + '/*jpg')
 target_total = len(search_list)
 try:
@@ -240,17 +239,17 @@ try:
                 if current == filePath:
                     print("%s  Current Search" % current)
                 else:
-                    print(files)
+                    print(current)
             print("------------------------------------------------")
             search_rect = get_search_rect(filePath)  # Get search_rect of file
-            if search_rect == None:  # Check if search_rect created
+            if search_rect is None:  # Check if search_rect created
                 print("ERROR: Problem Creating Search Rectangle.")
                 print("       Cannot Search Match %s" % filePath)
             else:
                 results = search_for_match(filePath, search_rect)  # Look for matches
-               # if results:
-               #     for rows in results:
-               #         print(rows)
+                       # if results:
+                       #     for rows in results:
+                       #         print(rows)
     else:
         print("------------- Instructions ---------------------")
         print("")

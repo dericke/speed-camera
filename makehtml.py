@@ -110,9 +110,8 @@ def make_web_page(up_html, row_data, dn_html):
     web_html_path = os.path.join(web_html_dir, base_filename + '.html')
 
     if os.path.isfile(img_path):
-        f = open(web_html_path, "w")
-        f.write(pageTemplate)
-        f.close()
+        with open(web_html_path, "w") as f:
+            f.write(pageTemplate)
         # Sync file stat dates of html with jpg file
         shutil.copystat(img_path, web_html_path)
         if verbose:

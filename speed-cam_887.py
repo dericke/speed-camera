@@ -353,14 +353,13 @@ def show_settings():
         os.makedirs(image_path)
     os.chdir(image_path)
     os.chdir(cwd)
-    if imageRecentMax > 0:
-        if not os.path.isdir(imageRecentDir):
-            logging.info("Create Recent Folder %s", imageRecentDir)
-            try:
-                os.makedirs(imageRecentDir)
-            except OSError as err:
-                logging.error('Failed to Create Folder %s - %s',
-                              imageRecentDir, err)
+    if imageRecentMax > 0 and not os.path.isdir(imageRecentDir):
+        logging.info("Create Recent Folder %s", imageRecentDir)
+        try:
+            os.makedirs(imageRecentDir)
+        except OSError as err:
+            logging.error('Failed to Create Folder %s - %s',
+                          imageRecentDir, err)
     if not os.path.isdir(search_dest_path):
         logging.info("Creating Search Folder %s", search_dest_path)
         os.makedirs(search_dest_path)
@@ -487,7 +486,7 @@ def subDirLatest(directory):
     """ Scan for directories and return most recent """
     dirList = ([name for name in os.listdir(directory)
                 if os.path.isdir(os.path.join(directory, name))])
-    if len(dirList) > 0:
+    if dirList:
         lastSubDir = sorted(dirList)[-1]
         lastSubDir = os.path.join(directory, lastSubDir)
     else:
@@ -693,10 +692,9 @@ def freeDiskSpaceCheck(lastSpaceCheck):
 def get_image_name(path, prefix):
     """ build image file names by number sequence or date/time """
     rightNow = datetime.datetime.now()
-    filename = ("%s/%s%04d%02d%02d-%02d%02d%02d.jpg" %
+    return ("%s/%s%04d%02d%02d-%02d%02d%02d.jpg" %
                 (path, prefix, rightNow.year, rightNow.month, rightNow.day,
                  rightNow.hour, rightNow.minute, rightNow.second))
-    return filename
 
 #------------------------------------------------------------------------------
 def log_to_csv_file(data_to_append):
@@ -712,9 +710,8 @@ def log_to_csv_file(data_to_append):
         f.close()
         logging.info("Create New Data Log File %s", log_file_path)
     filecontents = data_to_append + "\n"
-    f = open(log_file_path, 'a+')
-    f.write(filecontents)
-    f.close()
+    with open(log_file_path, 'a+') as f:
+        f.write(filecontents)
     return
 
 #------------------------------------------------------------------------------

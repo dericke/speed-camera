@@ -46,6 +46,7 @@ See User Variables below to change default settings.
 Still a work in progress
 Good Luck Claude ....
 """
+
 from __future__ import print_function
 import sys
 import os
@@ -140,12 +141,10 @@ try:
         DB_CONN.close() # Close DB to minimize db lock issues
         ROW_TOTAL = len(ALL_ROWS)  # Get total Rows to Process
         ROW_MSG = "%i Rows Found to Process." % ROW_TOTAL
-        ROW_COUNTER = 0
         PLATES_DONE = 0
-        for row in ALL_ROWS:
+        for ROW_COUNTER, row in enumerate(ALL_ROWS, start=1):
             ROW_INDEX = row[0] # get image idx from speed table
             ROW_PATH = row[1]  # get image_path from speed table
-            ROW_COUNTER += 1
             # create full path to image file to process
             IMAGE_PATH = os.path.join(SPEED_DIR, ROW_PATH)
             # Do ALPR processing on selected image
@@ -158,7 +157,7 @@ try:
                 ROW_DATA = ('{:7s} ({:.2f}%) '.format
                             (best_candidate['plate'].upper(),
                              best_candidate['confidence']))
-                PLATE_DATA = PLATE_DATA + ROW_DATA
+                PLATE_DATA += ROW_DATA
                 PLATES_DONE += 1
 
             # UPDATE speed_cam.db speed, status column with PLATE_DATA or NULL

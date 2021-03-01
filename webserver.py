@@ -59,16 +59,8 @@ web_root = os.getcwd()
 os.chdir(BASE_DIR)
 MNT_POINT = "./"
 
-if web_list_by_datetime:
-    dir_sort = 'Sort DateTime'
-else:
-    dir_sort = 'Sort Filename'
-
-if web_list_sort_descending:
-    dir_order = 'Desc'
-else:
-    dir_order = 'Asc'
-
+dir_sort = 'Sort DateTime' if web_list_by_datetime else 'Sort Filename'
+dir_order = 'Desc' if web_list_sort_descending else 'Asc'
 list_title = "%s %s" % (dir_sort, dir_order)
 
 #-------------------------------------------------------------------------------
@@ -169,16 +161,18 @@ VALUE="Refresh">&nbsp;&nbsp;<b>%s</b></FORM>''' % list_title)
         f.write('%s' % refresh_button)
         f.write('<ul name="menu" id="menu" style="list-style-type:none; padding-left: 4px">')
         # Create the formatted list of right panel hyper-links to files in the specified directory
-        if not self.path is "/":   # Display folder Back arrow navigation if not in web root
+        if self.path is not "/":   # Display folder Back arrow navigation if not in web root
             f.write('<li><a href="%s" >%s</a></li>\n'
                     % (urllib.quote(".."), cgi.escape("< BACK")))
         display_entries = 0
         file_found = False
         for name in list:
             display_entries += 1
-            if web_max_list_entries > 1:
-                if display_entries >= web_max_list_entries:
-                    break
+            if (
+                web_max_list_entries > 1
+                and display_entries >= web_max_list_entries
+            ):
+                break
             fullname = os.path.join(path, name)
             displayname = linkname = name
             date_modified = time.strftime('%H:%M:%S %d-%b-%Y', time.localtime(os.path.getmtime(fullname)))
@@ -194,7 +188,7 @@ VALUE="Refresh">&nbsp;&nbsp;<b>%s</b></FORM>''' % list_title)
                 f.write('<li><a href="%s" target="imgbox">%s</a> - %s</li>\n'
                         % (urllib.quote(linkname), cgi.escape(displayname), date_modified))
 
-        if (not self.path is "/") and display_entries > 35:   # Display folder Back arrow navigation if not in web root
+        if self.path is not "/" and display_entries > 35:   # Display folder Back arrow navigation if not in web root
             f.write('<li><a href="%s" >%s</a></li>\n' % (urllib.quote(".."), cgi.escape("< BACK")))
         f.write('</ul></div><p><b>')
         drive_status = df(MNT_POINT)
