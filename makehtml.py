@@ -184,7 +184,7 @@ def read_from_csv(filename):
                                 this_is_third_row = False
                             else:
                                 make_web_page(prev_link, cur_row, next_link)
-        make_web_page(cur_link, next_row, next_link)
+            make_web_page(cur_link, next_row, next_link)
 
     finally:
         workEnd = time.time()
