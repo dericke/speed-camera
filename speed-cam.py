@@ -917,12 +917,12 @@ def log_to_csv(data_to_append):
     log_file_path = baseDir + baseFileName + ".csv"
     if not os.path.exists(log_file_path):
         open(log_file_path, 'w').close()
-        f = open(log_file_path, 'ab')
+        with open(log_file_path, 'ab') as f:
         # header_text = ('"YYYY-MM-DD HH:MM:SS","Speed","Unit",
         #                  "    Speed Photo Path            ",
         #                  "X","Y","W","H","Area","Direction"' + "\n")
-        # f.write( header_text )
-        f.close()
+        # f.write( header_text )]
+            pass
         logging.info("Create New Data Log File %s", log_file_path)
     filecontents = data_to_append + "\n"
     with open(log_file_path, 'a+') as f:
@@ -1140,16 +1140,15 @@ def speed_camera():
             logging.info("sqlite3 DB is Open %s", DB_PATH)
             db_cur = db_conn.cursor()  # Set cursor position
             db_is_open = True
-
-    # insert status column into speed table.  Can be used for
-    # alpr (automatic license plate reader) processing to indicate
-    # images to be processed eg null field entry.
-    try:
-        db_conn.execute('alter table speed add status text')
-        db_conn.execute('alter table speed add cam_location text')
-    except sqlite3.OperationalError:
-        pass
-    db_conn.close()
+    with db_conn:
+        # insert status column into speed table.  Can be used for
+        # alpr (automatic license plate reader) processing to indicate
+        # images to be processed eg null field entry.
+        try:
+            db_conn.execute('alter table speed add status text')
+            db_conn.execute('alter table speed add cam_location text')
+        except sqlite3.OperationalError:
+            pass
     speed_notify()
     # Warn user of performance hit if webcam image flipped
     if (WEBCAM and WEBCAM_FLIPPED):
@@ -1404,10 +1403,9 @@ def speed_camera():
                                 # Unless speed table is recreated.
                                 try:
                                     sql_cmd = '''insert into {} values {}'''.format(DB_TABLE, speed_data)
-                                    db_conn = db_check(DB_PATH)
-                                    db_conn.execute(sql_cmd)
-                                    db_conn.commit()
-                                    db_conn.close()
+                                    with db_check(DB_PATH) as db_conn:
+                                        db_conn.execute(sql_cmd)
+                                        db_conn.commit()
                                 except sqlite3.Error as e:
                                     logging.error("sqlite3 DB %s", DB_PATH)
                                     logging.error("Failed: To INSERT Speed Data into TABLE %s", DB_TABLE)

@@ -6,12 +6,10 @@
 
 progVer = "6.70"
 
-import glob
-import os
 import csv
-import time
-import datetime
+import os
 import shutil
+import time
 
 # Find the full path of this python script
 progName = os.path.abspath(__file__)
@@ -145,51 +143,50 @@ def read_from_csv(filename):
     cur_row  = []
     prev_row = []
 
-    f = open(filename, 'rt')
     cnt=0
     workStart = time.time()
     workCount = 0
     try:
-        reader = csv.reader(f)
-        for row in reader:
-            workCount += 1
-            if not next_row:
-                jpg_exists, next_link = check_row(row)
-                if jpg_exists:
-                    next_row = row
-                    first_row = row
-                    first_link = next_link
-            elif not cur_row:
-                jpg_exists, cur_link = check_row(row)
-                if jpg_exists:
-                    cur_row = row
-                    second_row = row
-                    second_link = cur_link
-            else:
-                jpg_exists, new_link = check_row(row)
-                if jpg_exists:
-                    temp_link = new_link
-                    prev_row = cur_row
-                    prev_link = cur_link
-                    cur_row = next_row
-                    cur_link = next_link
-                    next_row = row
-                    save_next_link = next_link
-                    next_link = new_link
-                    if this_is_first_row:
-                        make_web_page(first_link, first_row, second_link)
-                        make_web_page(first_link, second_row, temp_link)
-                        this_is_first_row = False
-                    else:
-                        if this_is_third_row:
-                            make_web_page(second_link, cur_row, next_link)
-                            this_is_third_row = False
+        with open(filename, 'rt') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                workCount += 1
+                if not next_row:
+                    jpg_exists, next_link = check_row(row)
+                    if jpg_exists:
+                        next_row = row
+                        first_row = row
+                        first_link = next_link
+                elif not cur_row:
+                    jpg_exists, cur_link = check_row(row)
+                    if jpg_exists:
+                        cur_row = row
+                        second_row = row
+                        second_link = cur_link
+                else:
+                    jpg_exists, new_link = check_row(row)
+                    if jpg_exists:
+                        temp_link = new_link
+                        prev_row = cur_row
+                        prev_link = cur_link
+                        cur_row = next_row
+                        cur_link = next_link
+                        next_row = row
+                        save_next_link = next_link
+                        next_link = new_link
+                        if this_is_first_row:
+                            make_web_page(first_link, first_row, second_link)
+                            make_web_page(first_link, second_row, temp_link)
+                            this_is_first_row = False
                         else:
-                            make_web_page(prev_link, cur_row, next_link)
+                            if this_is_third_row:
+                                make_web_page(second_link, cur_row, next_link)
+                                this_is_third_row = False
+                            else:
+                                make_web_page(prev_link, cur_row, next_link)
         make_web_page(cur_link, next_row, next_link)
 
     finally:
-        f.close()
         workEnd = time.time()
         outDir = os.path.abspath(web_html_dir)
         print("-----------------")

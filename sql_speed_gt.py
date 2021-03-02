@@ -7,14 +7,16 @@ the sqlite3 database data/speed_cam.db
 """
 
 from __future__ import print_function
+
 print("Loading ...")
-import sqlite3
-import Gnuplot
-import os
-import time
-import logging
 import argparse
+import logging
+import os
+import sqlite3
 import sys
+import time
+
+import Gnuplot
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)-8s %(funcName)-10s %(message)s',
@@ -127,35 +129,32 @@ def make_graph_data():
     graph_html = []
     start_time = time.time()
     logging.info("Connect to Database %s", DB_PATH)
-    connection = sqlite3.connect(DB_PATH)
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-    cursor.execute(GRAPH_QUERY)
-    f = open(GRAPH_DATA_PATH, "w")
-    while True:
-        row = cursor.fetchone()
-        if row is None:
-            break
-        log_date = (row["log_date"])
-        log_hour = (row["log_hour"])
-        count = (row[cursor.rowcount])
-        row_html = ('''<tr><td>%s</td><td>%s</td><td>%s</td></tr>''' %(log_date, log_hour, count))
-        graph_html.append(row_html)
-        row_data = ("%s %s %s \n" %(log_date, log_hour, count))
-        f.write(row_data)
-       # graph_data.append(row)
-    f.close()
-    cursor.close()
-    connection.close()
+    with sqlite3.connect(DB_PATH) as connection:
+        connection.row_factory = sqlite3.Row
+        cursor = connection.cursor()
+        cursor.execute(GRAPH_QUERY)
+        with open(GRAPH_DATA_PATH, "w") as f:
+            while True:
+                row = cursor.fetchone()
+                if row is None:
+                    break
+                log_date = (row["log_date"])
+                log_hour = (row["log_hour"])
+                count = (row[cursor.rowcount])
+                row_html = ('''<tr><td>%s</td><td>%s</td><td>%s</td></tr>''' %(log_date, log_hour, count))
+                graph_html.append(row_html)
+                row_data = ("%s %s %s \n" %(log_date, log_hour, count))
+                f.write(row_data)
+            # graph_data.append(row)
+        cursor.close()
     # Write count report html file with graph on top
-    f = open(COUNT_PATH, "w")
-    f.write(HTML_HEADER_1)
-    f.write(HTML_HEADER_2C)
-    f.write(HTML_HEADER_3C)
-    for item in graph_html:
-        f.write(item)
-    f.write(HTML_FOOTER)
-    f.close()
+    with open(COUNT_PATH, "w") as f:
+        f.write(HTML_HEADER_1)
+        f.write(HTML_HEADER_2C)
+        f.write(HTML_HEADER_3C)
+        for item in graph_html:
+            f.write(item)
+        f.write(HTML_FOOTER)
     del graph_html
     logging.info("Saved html File to %s", COUNT_PATH)
 
@@ -186,35 +185,34 @@ def make_html():
     html_table = []   # List to hold html table rows
     start_time = time.time()
     logging.info("Connect to Database %s", DB_PATH)
-    connection = sqlite3.connect(DB_PATH)
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-    cursor.execute(REPORT_QUERY)
-    while True:
-        row = cursor.fetchone()
-        if row is None:
-            break
-        log_date = (row["log_date"])
-        log_hour = (row["log_hour"])
-        ave_speed = (row["ave_speed"])
-        speed_units = (row["speed_units"])
-        image_path = (row["image_path"])
-        image_filename=os.path.basename(image_path)
-        direction = (row["direction"])
-        link_path = os.path.join(os.path.relpath(
-                        os.path.abspath(os.path.dirname(image_path)),
-                        os.path.abspath(REPORTS_DIR)),
-                        image_filename)
-        table_row = ('<tr><td>%s</td><td>%s</td><td>%s %s</td><td><a href="%s">%s</a></td><td>%s</td></tr>' %
-                    (log_date,
-                     log_hour,
-                     ave_speed,
-                     speed_units,
-                     link_path,
-                     image_path,
-                     direction))
-        html_table.append(table_row)
-    connection.close()
+    with sqlite3.connect(DB_PATH) as connection:
+        connection.row_factory = sqlite3.Row
+        cursor = connection.cursor()
+        cursor.execute(REPORT_QUERY)
+        while True:
+            row = cursor.fetchone()
+            if row is None:
+                break
+            log_date = (row["log_date"])
+            log_hour = (row["log_hour"])
+            ave_speed = (row["ave_speed"])
+            speed_units = (row["speed_units"])
+            image_path = (row["image_path"])
+            image_filename=os.path.basename(image_path)
+            direction = (row["direction"])
+            link_path = os.path.join(os.path.relpath(
+                            os.path.abspath(os.path.dirname(image_path)),
+                            os.path.abspath(REPORTS_DIR)),
+                            image_filename)
+            table_row = ('<tr><td>%s</td><td>%s</td><td>%s %s</td><td><a href="%s">%s</a></td><td>%s</td></tr>' %
+                        (log_date,
+                        log_hour,
+                        ave_speed,
+                        speed_units,
+                        link_path,
+                        image_path,
+                        direction))
+            html_table.append(table_row)
     with open(REPORTS_PATH, "w") as f:
         f.write(HTML_HEADER_1)
         f.write(HTML_HEADER_2)
